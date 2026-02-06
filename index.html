@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>SheDiamond — Free Ticket</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-apple.png" />
+
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
@@ -75,6 +80,45 @@
       background: rgba(0, 0, 0, 0.45);
       z-index: 1;
     }
+
+  /* ===============================
+   VIDEO SLIDE (SLIDE 4)
+================================ */
+
+/* Make slide act as video container */
+.video-slide {
+  position: relative;
+  overflow: hidden;
+  background: none !important;
+}
+
+.slide-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.video-slide::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1;
+}
+
+.video-slide .slide-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 90%;
+  max-width: 680px;
+  text-align: center;
+}
 
     /* TEXT ON TOP */
     .slide-text {
@@ -225,23 +269,26 @@
 
         <section class="slide" style="background-image:url('image3.jpg')">
           <div class="slide-text">
-            <h2>Conveyor of SheDiamond</h2>
+            <h2>Convener of SheDiamond</h2>
             <p>Global Amb. Onyi Ike, The visionary behind SheDiamond is a builder, passionate about helping women discover their worth, unlock their potential, and achieve total transformation.</p>
           </div>
         </section>
 
-        <section class="slide" style="background-image:url('image4.jpg')">
-          <div class="slide-text">
-            <h2>Next SheDiamond Event</h2>
-            <p>Join us for the next SheDiamond experience, a time of inspiration, networking, and empowerment designed to help you shine brighter in every area of life.</p>
-          </div>
-        </section>
+       <section class="slide video-slide">
+  <video class="slide-video" autoplay muted loop playsinline preload="auto">
+  <source src="video4.mp4" type="video/mp4">
+</video>
+  <div class="slide-text">
+    <h2>Next SheDiamond Event</h2>
+    <p>Join us for the next SheDiamond experience, a time of inspiration, networking, and empowerment designed to help you shine brighter in every area of life.</p>
+  </div>
+</section>
       </div>
     </div>
 
     <div class="ticket-box">
       <div class="ticket-note">Limited free tickets available</div>
-      <button id="chatBtn" class="chat-btn">💬 Chat to Get Free Ticket</button>
+      <button id="chatBtn" class="chat-btn">💬 Click to Get Free Ticket</button>
     </div>
   </div>
 
@@ -255,17 +302,64 @@
   // --- Slider ---
   let slideIndex = 0;
   const slideCount = slider.children.length;
-  function goTo(i){ slideIndex=(i+slideCount)%slideCount; slider.style.transform=`translateX(-${slideIndex*100}%)`; }
-  setInterval(()=>goTo(slideIndex+1), SLIDE_INTERVAL_MS);
+  const video = document.querySelector('.slide-video');
 
+  // --- Swipe variables ---
+  let startX = 0;
+  let endX = 0;
+  const SWIPE_THRESHOLD = 50; // minimum swipe distance in pixels
 
-    // --- Handle button click ---
-    chatBtn.addEventListener('click', () => {
-      // Redirect immediately
-      window.open(WHATSAPP_LINK, '_blank');
+  function goTo(i){
+    slideIndex = (i + slideCount) % slideCount;
+    slider.style.transform = `translateX(-${slideIndex * 100}%)`;
 
-    });
+    if (slideIndex === 3 && video) {
+      video.play();
+    } else if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
+  }
 
+  setInterval(() => goTo(slideIndex + 1), SLIDE_INTERVAL_MS);
+
+  // --- Swipe Support ---
+  slider.addEventListener('touchstart', (e) => {
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+}, { passive: true });
+
+slider.addEventListener('touchmove', (e) => {
+  endX = e.touches[0].clientX;
+  endY = e.touches[0].clientY;
+}, { passive: true });
+
+slider.addEventListener('touchend', () => {
+  const diffX = startX - endX;
+  const diffY = startY - endY;
+
+  // Only handle horizontal swipes
+  if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(diffX) > Math.abs(diffY)) {
+    if (diffX > 0) {
+      // Swipe left → next slide
+      goTo(slideIndex + 1);
+    } else {
+      // Swipe right → previous slide
+      goTo(slideIndex - 1);
+    }
+  }
+
+  // Reset
+  startX = 0;
+  startY = 0;
+  endX = 0;
+  endY = 0;
+});
+
+  // --- Handle button click ---
+  chatBtn.addEventListener('click', () => {
+    window.open(WHATSAPP_LINK, '_blank');
+  });
 })();
 </script>
 </body>
